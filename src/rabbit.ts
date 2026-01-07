@@ -13,6 +13,7 @@ import { logger } from './logger.js';
 export interface RenderResponsePayload {
   path?: string;
   error?: string;
+  correlationId: string;
   [key: string]: unknown;
 }
 
@@ -61,12 +62,14 @@ export class RabbitClient {
       url: targetUrl,
       queueId: responseQueue,
       requestedAt: new Date().toISOString(),
+      correlationId,
     };
 
     await channel.sendToQueue(
       this.requestQueue,
       Buffer.from(JSON.stringify(payload)),
       {
+        correlationId,
         replyTo: responseQueue,
         contentType: 'application/json',
         persistent: true,
@@ -194,6 +197,7 @@ export class RabbitClient {
     await channel.sendToQueue(queueName, Buffer.from(JSON.stringify(payload)), {
       contentType: 'application/json',
       persistent: false,
+      correlationId: payload.correlationId,
     });
   }
 
@@ -225,4 +229,5 @@ interface RenderTask {
   url: string;
   queueId: string;
   requestedAt: string;
+  correlationId: string;
 }

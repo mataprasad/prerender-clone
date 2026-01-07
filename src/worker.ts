@@ -15,6 +15,7 @@ interface RenderTask {
   url: string;
   requestedAt: string;
   queueId: string;
+  correlationId: string;
 }
 
 @singleton()
@@ -95,11 +96,12 @@ class Worker {
       const html = await this.render(task.url);
       const outputPath = await this.saveToDisk(task.url, html);
       await this.cache.setUrl(task.url, outputPath);
-      await this.rabbit.respond(task.queueId, { path: outputPath });
+      await this.rabbit.respond(task.queueId, { path: outputPath, correlationId: task.correlationId });
       logger.info({ url: task.url, outputPath }, '[worker] Completed rendering');
     } catch (error) {
       logger.error({ url: task.url, error }, '[worker] Failed to render');
       await this.rabbit.respond(task.queueId, {
+        correlationId: task.correlationId,
         error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
