@@ -11,6 +11,7 @@ export interface AppConfig {
   requestQueue: string;
   responseQueuePrefix: string;
   responseTimeoutMs: number;
+  workerConcurrency: number;
 }
 
 @singleton()
@@ -38,6 +39,7 @@ export class ConfigService {
       responseQueuePrefix:
         env.RESPONSE_QUEUE_PREFIX || 'prerender.responses.',
       responseTimeoutMs: Number(env.RESPONSE_TIMEOUT_MS || 60_000),
+      workerConcurrency: Number(env.WORKER_CONCURRENCY || 3),
     };
   }
 }
