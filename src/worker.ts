@@ -41,9 +41,11 @@ class Worker {
   }
 
   async start(): Promise<void> {
+    const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || undefined;
     this.browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      executablePath,
     });
     logger.info(
       {

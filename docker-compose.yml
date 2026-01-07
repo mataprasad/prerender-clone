@@ -11,6 +11,9 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
       - AMQP_URL=amqp://rabbitmq
+      - OUTPUT_DIR=/usr/src/app/cache
+    volumes:
+      - ./cache:/usr/src/app/cache
   worker:
     build: .
     command: npm run worker
@@ -20,6 +23,9 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
       - AMQP_URL=amqp://rabbitmq
+      - OUTPUT_DIR=/usr/src/app/cache
+    volumes:
+      - ./cache:/usr/src/app/cache
   worker_threads:
     build: .
     command: node --loader ts-node/esm src/worker-os-thread.ts
@@ -29,6 +35,9 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
       - AMQP_URL=amqp://rabbitmq
+      - OUTPUT_DIR=/usr/src/app/cache
+    volumes:
+      - ./cache:/usr/src/app/cache
   redis:
     image: redis:7
     ports:
