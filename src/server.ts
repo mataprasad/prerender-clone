@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import express, { type Express } from 'express';
 import { container, singleton } from 'tsyringe';
 import { ConfigService } from './config.js';
+import { logger } from './logger.js';
 import { PrerenderRoute } from './routes/prerender.js';
 import { CacheService } from './cache.js';
 import { RabbitClient } from './rabbit.js';
@@ -45,14 +46,14 @@ export class Application {
         }
       });
     });
-    console.log(`Prerender server listening on http://localhost:${config.port}`);
+    logger.info(`Prerender server listening on http://localhost:${config.port}`);
 
     process.on('SIGTERM', () => void this.shutdown());
     process.on('SIGINT', () => void this.shutdown());
   }
 
   async shutdown(): Promise<void> {
-    console.log('Shutting down...');
+    logger.info('Shutting down...');
     if (this.server) {
       await new Promise<void>((resolve, reject) => {
         this.server?.close((err?: Error) => {
@@ -74,6 +75,6 @@ export class Application {
 const application = container.resolve(Application);
 
 application.start().catch((error: unknown) => {
-  console.error('Failed to start server', error);
+  logger.error({ error }, 'Failed to start server');
   process.exit(1);
 });

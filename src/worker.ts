@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import { RabbitClient } from './rabbit.js';
 import { CacheService } from './cache.js';
 import { ConfigService, type AppConfig } from './config.js';
+import { logger } from './logger.js';
 
 dotenv.config();
 
@@ -39,12 +40,16 @@ class Worker {
   }
 
   async start(): Promise<void> {
-    this.browser = await puppeteer.launch({ 
-      headless: true , 
-      args: ["--no-sandbox", "--disable-setuid-sandbox"] ,
-      // executablePath: process.env.PUPPETEER_EXECUTABLE_PATH
+    this.browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
-    console.log('Worker started. Waiting for render tasks...');
+    logger.info(
+      {
+        concurrency: this.maxConcurrent,
+      },
+      'Worker started. Waiting for render tasks...',
+    );
     await this.rabbit.consumeRequests(async (task) => {
       return this.enqueueTask(task);
     });
@@ -61,6 +66,13 @@ class Worker {
     if (!this.browser) {
       return;
     }
+    logger.info(
+      {
+        active: this.active,
+        pending: this.queue.length,
+      },
+      '[worker] Queue state',
+    );
     while (this.active < this.maxConcurrent && this.queue.length > 0) {
       const entry = this.queue.shift();
       if (!entry) {
@@ -79,13 +91,14 @@ class Worker {
 
   private async handleTask(task: RenderTask): Promise<void> {
     try {
+      logger.info({ url: task.url, queueId: task.queueId }, '[worker] Begin rendering');
       const html = await this.render(task.url);
       const outputPath = await this.saveToDisk(task.url, html);
       await this.cache.setUrl(task.url, outputPath);
       await this.rabbit.respond(task.queueId, { path: outputPath });
-      console.log(`Rendered and cached ${task.url}`);
+      logger.info({ url: task.url, outputPath }, '[worker] Completed rendering');
     } catch (error) {
-      console.error(`Failed to render ${task.url}`, error);
+      logger.error({ url: task.url, error }, '[worker] Failed to render');
       await this.rabbit.respond(task.queueId, {
         error: error instanceof Error ? error.message : 'Unknown error',
       });
@@ -122,6 +135,6 @@ class Worker {
 
 const worker = container.resolve(Worker);
 worker.start().catch((error) => {
-  console.error('Worker failed', error);
+  logger.error({ error }, 'Worker failed');
   process.exit(1);
 });

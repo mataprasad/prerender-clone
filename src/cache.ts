@@ -1,6 +1,7 @@
 import { createClient, type RedisClientType } from 'redis';
 import { singleton } from 'tsyringe';
 import { ConfigService, type AppConfig } from './config.js';
+import { logger } from './logger.js';
 
 @singleton()
 export class CacheService {
@@ -12,7 +13,7 @@ export class CacheService {
     this.config = this.configService.get();
     this.client = createClient({ url: this.config.redisUrl });
     this.client.on('error', (err) => {
-      console.error('[redis] connection error', err);
+      logger.error({ err }, '[redis] connection error');
     });
   }
 
@@ -50,7 +51,7 @@ export class CacheService {
     try {
       await this.client.quit();
     } catch (error) {
-      console.warn('[redis] shutdown error', error);
+      logger.warn({ error }, '[redis] shutdown error');
     } finally {
       this.connected = false;
     }

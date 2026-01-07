@@ -2,6 +2,7 @@ import { Worker } from 'node:worker_threads';
 import 'reflect-metadata';
 import { container } from 'tsyringe';
 import { ConfigService } from './config.js';
+import { logger } from './logger.js';
 
 const WORKER_COUNT = container.resolve(ConfigService).get().workerThreadCount;
 const workers: Worker[] = [];
@@ -13,19 +14,19 @@ for (let i = 0; i < WORKER_COUNT; i += 1) {
   });
 
   worker.on('online', () => {
-    console.log(`Worker thread #${i + 1} online`);
+    logger.info({ thread: i + 1 }, 'Worker thread online');
   });
 
   worker.on('exit', (code) => {
     if (code !== 0) {
-      console.error(`Worker thread #${i + 1} exited with code ${code}`);
+      logger.error({ thread: i + 1, code }, 'Worker thread exited with error');
     } else {
-      console.log(`Worker thread #${i + 1} exited`);
+      logger.info({ thread: i + 1 }, 'Worker thread exited');
     }
   });
 
   worker.on('error', (err) => {
-    console.error(`Worker thread #${i + 1} error`, err);
+    logger.error({ thread: i + 1, err }, 'Worker thread error');
   });
 
   workers.push(worker);
@@ -35,10 +36,10 @@ process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
 
 function shutdown(): void {
-  console.log('Shutting down worker threads...');
+  logger.info('Shutting down worker threads...');
   for (const worker of workers) {
     worker.terminate().catch((err) => {
-      console.error('Failed to terminate worker thread', err);
+      logger.error({ err }, 'Failed to terminate worker thread');
     });
   }
 }

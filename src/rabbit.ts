@@ -7,7 +7,8 @@ import {
 } from 'amqplib';
 import crypto from 'crypto';
 import { singleton } from 'tsyringe';
-import { ConfigService, type AppConfig } from './config.js';
+import { ConfigService } from './config.js';
+import { logger } from './logger.js';
 
 export interface RenderResponsePayload {
   path?: string;
@@ -44,6 +45,7 @@ export class RabbitClient {
 
   async requestRender(targetUrl: string): Promise<RenderResponsePayload> {
     await this.ensureConnection();
+    logger.info({ url: targetUrl }, 'Publishing render request');
     const channel = this.ensureChannel();
 
     const correlationId = crypto.randomUUID();
@@ -65,24 +67,30 @@ export class RabbitClient {
       this.requestQueue,
       Buffer.from(JSON.stringify(payload)),
       {
-        correlationId,
         replyTo: responseQueue,
         contentType: 'application/json',
         persistent: true,
       },
     );
 
-    return this.waitForResponse({ queueName: responseQueue, correlationId, channel });
+    return this.waitForResponse({
+      queueName: responseQueue,
+      correlationId,
+      channel,
+      url: targetUrl,
+    });
   }
 
   private waitForResponse({
     queueName,
     correlationId,
     channel,
+    url,
   }: {
     queueName: string;
     correlationId: string;
     channel: Channel;
+    url: string;
   }): Promise<RenderResponsePayload> {
     return new Promise((resolve, reject) => {
       let settled = false;
@@ -93,7 +101,7 @@ export class RabbitClient {
           return;
         }
         settled = true;
-        cleanup().finally(() => reject(new Error('Render response timed out')));
+        cleanup().finally(() => reject(new Error(`Render response timed out for ${url}`)));
       }, this.responseTimeoutMs);
 
       const cleanup = async () => {
@@ -131,6 +139,7 @@ export class RabbitClient {
 
             try {
               const parsed = JSON.parse(msg.content.toString('utf8')) as RenderResponsePayload;
+              logger.info({ url, correlationId, payload: parsed }, 'Received worker response');
               resolve(parsed);
             } catch (error) {
               reject(new Error('Invalid JSON response from renderer'));
@@ -154,7 +163,7 @@ export class RabbitClient {
       try {
         await this.channel.close();
       } catch (error) {
-        console.warn('[amqp] channel close error', error);
+        logger.warn({ error }, '[amqp] channel close error');
       } finally {
         this.channel = null;
       }
@@ -164,7 +173,7 @@ export class RabbitClient {
       try {
         await this.connection.close();
       } catch (error) {
-        console.warn('[amqp] connection close error', error);
+        logger.warn({ error }, '[amqp] connection close error');
       } finally {
         this.connection = null;
       }
@@ -181,6 +190,7 @@ export class RabbitClient {
   async respond(queueName: string, payload: RenderResponsePayload): Promise<void> {
     await this.ensureConnection();
     const channel = this.ensureChannel();
+    logger.info({ queueName, payload }, 'Sending worker response');
     await channel.sendToQueue(queueName, Buffer.from(JSON.stringify(payload)), {
       contentType: 'application/json',
       persistent: false,
@@ -198,10 +208,11 @@ export class RabbitClient {
         }
         try {
           const task = JSON.parse(msg.content.toString('utf8')) as RenderTask;
+          logger.info(task, 'Worker received task');
           await handler(task);
           channel.ack(msg);
         } catch (error) {
-          console.error('Failed to process task', error);
+          logger.error({ error }, 'Failed to process task');
           channel.nack(msg, false, false);
         }
       },

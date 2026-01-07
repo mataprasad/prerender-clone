@@ -5,6 +5,7 @@ import { singleton } from 'tsyringe';
 import { CacheService } from '../cache.js';
 import { RabbitClient } from '../rabbit.js';
 import { ConfigService } from '../config.js';
+import { logger } from '../logger.js';
 
 @singleton()
 export class PrerenderRoute {
@@ -27,10 +28,18 @@ export class PrerenderRoute {
       res.status(400).json({ error: 'Missing url query parameter' });
       return;
     }
+    logger.info(
+      {
+        url: targetUrl,
+        requestId: (req as any).id,
+      },
+      'Received prerender request',
+    );
 
     try {
       const cachedPath = await this.cache.getUrl(targetUrl);
       if (cachedPath) {
+        logger.info({ url: targetUrl, cachedPath }, 'Cache hit');
         const html = await this.readHtmlFromPath(cachedPath, config.outputDir);
         if (html !== null) {
           res.type('html').send(html);
@@ -39,6 +48,7 @@ export class PrerenderRoute {
       }
 
       const renderResult = await this.rabbit.requestRender(targetUrl);
+      logger.info({ url: targetUrl, response: renderResult }, 'Received render response');
 
       if (!renderResult || renderResult.error) {
         const message = renderResult?.error || 'Failed to prerender the requested page';
@@ -62,7 +72,7 @@ export class PrerenderRoute {
 
       res.type('html').send(html);
     } catch (error) {
-      console.error('[prerender] request failed', error);
+      logger.error({ url: targetUrl, error }, 'Route request failed');
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -73,14 +83,14 @@ export class PrerenderRoute {
   ): Promise<string | null> {
     const normalized = this.normalizePath(storedPath, outputDir);
     if (!normalized) {
-      console.warn('[prerender] invalid cached path skipped:', storedPath);
+        logger.warn({ storedPath }, 'Invalid cached path skipped');
       return null;
     }
 
     try {
       return await fs.readFile(normalized, 'utf8');
     } catch (error) {
-      console.warn('[prerender] unable to read cached file', normalized, error);
+      logger.warn({ normalized, error }, 'Unable to read cached file');
       return null;
     }
   }
