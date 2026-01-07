@@ -19,6 +19,20 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Debug Worker (ts-node)",
+      "runtimeExecutable": "/home/ubuntu/.nvm/versions/node/v20.19.6/bin/node",
+      "runtimeArgs": ["--loader", "ts-node/esm"],
+      "program": "${workspaceFolder}/src/worker.ts",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "TS_NODE_PROJECT": "${workspaceFolder}/tsconfig.json"
+      },
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Debug Built Server",
       "runtimeExecutable": "/home/ubuntu/.nvm/versions/node/v20.19.6/bin/node",
       "program": "${workspaceFolder}/dist/server.js",

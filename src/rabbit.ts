@@ -177,4 +177,41 @@ export class RabbitClient {
     }
     return this.channel;
   }
+
+  async respond(queueName: string, payload: RenderResponsePayload): Promise<void> {
+    await this.ensureConnection();
+    const channel = this.ensureChannel();
+    await channel.sendToQueue(queueName, Buffer.from(JSON.stringify(payload)), {
+      contentType: 'application/json',
+      persistent: false,
+    });
+  }
+
+  async consumeRequests(handler: (task: RenderTask) => Promise<void>): Promise<void> {
+    await this.ensureConnection();
+    const channel = this.ensureChannel();
+    await channel.consume(
+      this.requestQueue,
+      async (msg) => {
+        if (!msg) {
+          return;
+        }
+        try {
+          const task = JSON.parse(msg.content.toString('utf8')) as RenderTask;
+          await handler(task);
+          channel.ack(msg);
+        } catch (error) {
+          console.error('Failed to process task', error);
+          channel.nack(msg, false, false);
+        }
+      },
+      { noAck: false },
+    );
+  }
+}
+
+interface RenderTask {
+  url: string;
+  queueId: string;
+  requestedAt: string;
 }

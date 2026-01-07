@@ -7,9 +7,9 @@ Express-based prerender service backed by Redis for caching and RabbitMQ for coo
 1. Client hits `GET /prerender?url=<encoded>` on this service.
 2. The service checks Redis for the cached physical path of that URL.
 3. If the file exists the HTML is streamed straight from disk.
-4. Otherwise the server generates a unique queue id, advertises it in the payload, and publishes a request to RabbitMQ.
-5. The server waits up to 60 seconds for a response message on the same queue (the worker must reply there with the file path). If no response arrives, the request times out.
-6. On success the HTML is returned and the URL → path mapping is cached in Redis for future hits.
+4. Otherwise the service publishes a request to RabbitMQ specifying the URL and a per-request response queue.
+5. A separate worker (see below) consumes requests, prerenders the page with Puppeteer, saves the HTML to disk, caches the path in Redis, and replies on the provided queue.
+6. The HTTP service waits up to 60 seconds for the worker's response. If no response arrives the request times out.
 
 ## Requirements
 
@@ -27,7 +27,7 @@ cp .env.example .env
 
 ## Configuration
 
-Values can be provided via real environment variables or a local `.env` file (loaded automatically via [dotenv](https://www.npmjs.com/package/dotenv)).
+Values can be provided via environment variables or a `.env` file.
 
 Environment variable | Default | Description
 --- | --- | ---
@@ -44,8 +44,11 @@ Environment variable | Default | Description
 ## Running
 
 ```bash
-# Development (runs directly via ts-node loader to preserve decorator metadata)
+# Development server (ts-node loader preserves decorator metadata)
 npm run dev
+
+# Worker (consume jobs and render pages)
+npm run worker
 
 # Production build + run
 npm run build
@@ -60,22 +63,21 @@ curl 'http://localhost:3000/prerender?url=https%3A%2F%2Fexample.com'
 
 ### RabbitMQ contract
 
-- Requests are JSON payloads containing `url`, `queueId` (the queue to reply on), and `requestedAt`.
-- The worker is expected to fetch the page (likely via Puppeteer), write the HTML to the filesystem, and send a JSON response back to `queueId` with the same `correlationId`. A successful payload should look like `{ "path": "/absolute/or/relative/path.html" }`. Include an `error` string for failures.
-- The server acknowledges the first message whose `correlationId` matches and tears down the temporary queue. Responses arriving after 60 seconds are ignored.
+- Requests are JSON payloads containing `url`, `queueId`, and `requestedAt`.
+- The worker fetches the page, writes HTML to disk, caches the path in Redis, and responds on `queueId` with `{ "path": "<absolute/path>" }`.
+- Include an `error` string for failures. The server tears down temporary queues once a response arrives.
 
 ### Redis cache
 
 - Keys follow `CACHE_PREFIX + url`.
 - Values are the physical path to the rendered HTML file.
-- When cache hits but the file no longer exists, that entry is ignored and a fresh render is requested.
+- When cache hits but the file no longer exists, the entry is ignored and a fresh render is requested.
 
 ## Legacy CLI
 
-The original Puppeteer script is still available if you need a simple manual render:
+The original Puppeteer script is still available for manual renders:
 
 ```bash
 npm run render -- https://example.com --output dist/example.html
 ```
 
-It runs outside the Express/Rabbit/Redis workflow and simply writes the HTML to the provided path.
