@@ -40,6 +40,8 @@ Environment variable | Default | Description
 `RENDER_REQUEST_QUEUE` | `prerender.requests` | Queue where render jobs are published.
 `RESPONSE_QUEUE_PREFIX` | `prerender.responses.` | Prefix for the per-request response queue.
 `RESPONSE_TIMEOUT_MS` | `60000` | How long the server waits for a render response.
+`WORKER_CONCURRENCY` | `3` | Number of simultaneous tabs per worker process.
+`WORKER_THREADS` | `CPU count` | Number of worker threads to spawn when using `worker-os-thread`.
 
 ## Running
 
@@ -80,4 +82,3 @@ The original Puppeteer script is still available for manual renders:
 ```bash
 npm run render -- https://example.com --output dist/example.html
 ```
-

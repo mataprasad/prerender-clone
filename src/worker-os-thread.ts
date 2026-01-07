@@ -1,7 +1,9 @@
 import { Worker } from 'node:worker_threads';
-import os from 'os';
+import 'reflect-metadata';
+import { container } from 'tsyringe';
+import { ConfigService } from './config.js';
 
-const WORKER_COUNT = Number(process.env.WORKER_THREADS || os.cpus().length);
+const WORKER_COUNT = container.resolve(ConfigService).get().workerThreadCount;
 const workers: Worker[] = [];
 
 for (let i = 0; i < WORKER_COUNT; i += 1) {

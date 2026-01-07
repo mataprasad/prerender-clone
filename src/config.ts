@@ -1,4 +1,5 @@
 import path from 'path';
+import os from 'os';
 import { singleton } from 'tsyringe';
 
 export interface AppConfig {
@@ -12,6 +13,7 @@ export interface AppConfig {
   responseQueuePrefix: string;
   responseTimeoutMs: number;
   workerConcurrency: number;
+  workerThreadCount: number;
 }
 
 @singleton()
@@ -40,6 +42,7 @@ export class ConfigService {
         env.RESPONSE_QUEUE_PREFIX || 'prerender.responses.',
       responseTimeoutMs: Number(env.RESPONSE_TIMEOUT_MS || 60_000),
       workerConcurrency: Number(env.WORKER_CONCURRENCY || 3),
+      workerThreadCount: Number(env.WORKER_THREADS || os.cpus().length),
     };
   }
 }
