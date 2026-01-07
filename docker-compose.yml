@@ -1,0 +1,40 @@
+version: '3.9'
+services:
+  server:
+    build: .
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+      - rabbitmq
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - AMQP_URL=amqp://rabbitmq
+  worker:
+    build: .
+    command: npm run worker
+    depends_on:
+      - redis
+      - rabbitmq
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - AMQP_URL=amqp://rabbitmq
+  worker_threads:
+    build: .
+    command: node --loader ts-node/esm src/worker-os-thread.ts
+    depends_on:
+      - redis
+      - rabbitmq
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - AMQP_URL=amqp://rabbitmq
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"

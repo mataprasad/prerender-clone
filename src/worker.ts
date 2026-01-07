@@ -39,7 +39,11 @@ class Worker {
   }
 
   async start(): Promise<void> {
-    this.browser = await puppeteer.launch({ headless: true });
+    this.browser = await puppeteer.launch({ 
+      headless: true , 
+      args: ["--no-sandbox", "--disable-setuid-sandbox"] ,
+      // executablePath: process.env.PUPPETEER_EXECUTABLE_PATH
+    });
     console.log('Worker started. Waiting for render tasks...');
     await this.rabbit.consumeRequests(async (task) => {
       return this.enqueueTask(task);
