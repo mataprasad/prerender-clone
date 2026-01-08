@@ -8,7 +8,7 @@ services:
     environment:
       PORT: 3000
       REDIS_URL: redis:6379
-      AMQP_URL: amqp://rabbitmq
+      AMQP_URL: amqp://admin:admin123@rabbitmq
       OUTPUT_DIR: /app/cache
       CACHE_PREFIX: "prerender:url:"
       CACHE_TTL_SECONDS: 3600
@@ -16,7 +16,7 @@ services:
       RESPONSE_QUEUE_PREFIX: prerender.responses.
       RESPONSE_TIMEOUT_MS: 60000
     volumes:
-      - ./cache:/app/cache
+      - /var/prerender-cache:/app/cache
     depends_on:
       - redis
       - rabbitmq
@@ -27,7 +27,7 @@ services:
       dockerfile: Dockerfile.worker
     environment:
       REDIS_URL: redis:6379
-      AMQP_URL: amqp://rabbitmq
+      AMQP_URL: amqp://admin:admin123@rabbitmq
       OUTPUT_DIR: /app/cache
       CACHE_PREFIX: "prerender:url:"
       CACHE_TTL_SECONDS: 3600
@@ -37,7 +37,7 @@ services:
       WORKER_CONCURRENCY: 3
       PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium
     volumes:
-      - ./cache:/app/cache
+      - /var/prerender-cache:/app/cache
     depends_on:
       - redis
       - rabbitmq
@@ -48,7 +48,25 @@ services:
       - "6379:6379"
 
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    restart: unless-stopped
+
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672"      # AMQP
+      - "15672:15672"    # Management UI
+
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+      RABBITMQ_NODENAME: rabbit@rabbitmq
+
+    volumes:
+      - /opt/rabbitmq/data:/var/lib/rabbitmq   # 🔥 bind volume
+
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
