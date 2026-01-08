@@ -106,6 +106,7 @@ public sealed class WorkerHostedService(
             {
                 WaitUntil = new[] { WaitUntilNavigation.Networkidle0 },
                 Timeout = 60_000,
+                ReferrerPolicy = "no-referrer",
             });
             return await page.GetContentAsync();
         }
