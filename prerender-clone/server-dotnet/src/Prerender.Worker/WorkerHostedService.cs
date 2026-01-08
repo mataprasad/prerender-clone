@@ -38,8 +38,10 @@ public sealed class WorkerHostedService(
         }
         else
         {
-            var browserFetcher = new BrowserFetcher();
-            await browserFetcher.DownloadAsync();
+            await new BrowserFetcher(new BrowserFetcherOptions
+            {
+                Path = "/app/cache/chrome"
+            }).DownloadAsync();
         }
 
         _browser = await Puppeteer.LaunchAsync(options);
