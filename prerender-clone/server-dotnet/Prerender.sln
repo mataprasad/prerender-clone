@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34309.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prerender.Shared", "src/Prerender.Shared/Prerender.Shared.csproj", "{0BFDA53E-C5EB-4668-97BE-F97873E5EB33}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prerender.Server", "src/Prerender.Server/Prerender.Server.csproj", "{7947AC11-D1A1-4E7D-B451-3650D50C8AEC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prerender.Worker", "src/Prerender.Worker/Prerender.Worker.csproj", "{A2F010CB-089B-409C-BA37-17D5CEBEE658}"
+EndProject
+Global
+		GlobalSection(SolutionConfigurationPlatforms) = preSolution
+				Debug|Any CPU = Debug|Any CPU
+				Release|Any CPU = Release|Any CPU
+		EndGlobalSection
+		GlobalSection(ProjectConfigurationPlatforms) = postSolution
+				{0BFDA53E-C5EB-4668-97BE-F97873E5EB33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+				{0BFDA53E-C5EB-4668-97BE-F97873E5EB33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+				{0BFDA53E-C5EB-4668-97BE-F97873E5EB33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+				{0BFDA53E-C5EB-4668-97BE-F97873E5EB33}.Release|Any CPU.Build.0 = Release|Any CPU
+				{7947AC11-D1A1-4E7D-B451-3650D50C8AEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+				{7947AC11-D1A1-4E7D-B451-3650D50C8AEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+				{7947AC11-D1A1-4E7D-B451-3650D50C8AEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+				{7947AC11-D1A1-4E7D-B451-3650D50C8AEC}.Release|Any CPU.Build.0 = Release|Any CPU
+				{A2F010CB-089B-409C-BA37-17D5CEBEE658}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+				{A2F010CB-089B-409C-BA37-17D5CEBEE658}.Debug|Any CPU.Build.0 = Debug|Any CPU
+				{A2F010CB-089B-409C-BA37-17D5CEBEE658}.Release|Any CPU.ActiveCfg = Release|Any CPU
+				{A2F010CB-089B-409C-BA37-17D5CEBEE658}.Release|Any CPU.Build.0 = Release|Any CPU
+		EndGlobalSection
+EndGlobal
