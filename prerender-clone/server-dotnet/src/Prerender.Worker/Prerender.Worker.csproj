@@ -8,6 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="../Prerender.Shared/Prerender.Shared.csproj" />
-    <PackageReference Include="Microsoft.Playwright" Version="1.57.0" />
+    <PackageReference Include="PuppeteerSharp" Version="18.1.0" />
   </ItemGroup>
 </Project>

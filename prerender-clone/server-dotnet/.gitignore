@@ -1,3 +1,16 @@
 bin/
 obj/
 .vs/
+.idea/
+*.user
+*.suo
+*.log
+*.cache
+*.pdb
+*.dll
+*.exe
+*.db
+*.zip
+*.tar.gz
+.env
+cache/

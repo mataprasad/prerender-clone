@@ -8,6 +8,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Prerender.Shared;
 
+dotenv.net.DotEnv.Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.ClearProviders();

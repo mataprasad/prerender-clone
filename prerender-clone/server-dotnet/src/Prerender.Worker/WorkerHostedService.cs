@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Playwright;
+using PuppeteerSharp;
 using Prerender.Shared;
 using Prerender.Shared.Models;
 
@@ -20,14 +20,12 @@ public sealed class WorkerHostedService(
 {
     private readonly SemaphoreSlim _semaphore = new(configService.Get().WorkerConcurrency);
 
-    private IPlaywright? _playwright;
     private IBrowser? _browser;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var config = configService.Get();
-        _playwright = await Playwright.CreateAsync();
-        var options = new BrowserTypeLaunchOptions
+        var options = new LaunchOptions
         {
             Headless = true,
             Args = new[] { "--no-sandbox", "--disable-setuid-sandbox" },
@@ -38,8 +36,13 @@ public sealed class WorkerHostedService(
         {
             options.ExecutablePath = executablePath;
         }
+        else
+        {
+            var browserFetcher = new BrowserFetcher();
+            await browserFetcher.DownloadAsync();
+        }
 
-        _browser = await _playwright.Chromium.LaunchAsync(options);
+        _browser = await Puppeteer.LaunchAsync(options);
         logger.LogInformation("Worker started. Concurrency {Concurrency}", config.WorkerConcurrency);
 
         await rabbit.ConsumeRequestsAsync(async task =>
@@ -96,20 +99,17 @@ public sealed class WorkerHostedService(
             throw new InvalidOperationException("Browser is not initialized");
         }
 
-        var page = await _browser.NewPageAsync();
+        await using var page = await _browser.NewPageAsync();
         try
         {
-            await page.GotoAsync(url, new PageGotoOptions
+            await page.GoToAsync(url, new NavigationOptions
             {
-                WaitUntil = WaitUntilState.NetworkIdle,
+                WaitUntil = new[] { WaitUntilNavigation.Networkidle0 },
                 Timeout = 60_000,
             });
-            return await page.ContentAsync();
+            return await page.GetContentAsync();
         }
-        finally
-        {
-            await page.CloseAsync();
-        }
+        finally { }
     }
 
     private async Task<string> SaveToDiskAsync(string url, string html, CancellationToken stoppingToken)
@@ -133,7 +133,5 @@ public sealed class WorkerHostedService(
             _browser = null;
         }
 
-        _playwright?.Dispose();
-        _playwright = null;
     }
 }

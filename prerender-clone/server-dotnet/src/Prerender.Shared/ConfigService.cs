@@ -23,7 +23,7 @@ public sealed class ConfigService
         return new AppConfig
         {
             Port = port,
-            RedisUrl = GetString("REDIS_URL", "redis://localhost:6379"),
+            RedisUrl = GetString("REDIS_URL", "localhost:6379"),
             CachePrefix = GetString("CACHE_PREFIX", "prerender:url:"),
             CacheTtlSeconds = cacheTtlSeconds,
             OutputDir = string.IsNullOrWhiteSpace(outputDir)

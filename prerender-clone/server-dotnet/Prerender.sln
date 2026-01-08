@@ -1,30 +1,30 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.8.34309.116
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prerender.Shared", "src/Prerender.Shared/Prerender.Shared.csproj", "{0BFDA53E-C5EB-4668-97BE-F97873E5EB33}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Prerender.Shared", "src/Prerender.Shared/Prerender.Shared.csproj", "{F34E6A5B-162C-48FC-ACF0-24B658A9A544}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prerender.Server", "src/Prerender.Server/Prerender.Server.csproj", "{7947AC11-D1A1-4E7D-B451-3650D50C8AEC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Prerender.Server", "src/Prerender.Server/Prerender.Server.csproj", "{C565A310-59DA-4463-A680-DFBB46D29ADE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prerender.Worker", "src/Prerender.Worker/Prerender.Worker.csproj", "{A2F010CB-089B-409C-BA37-17D5CEBEE658}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Prerender.Worker", "src/Prerender.Worker/Prerender.Worker.csproj", "{C580AED0-BACA-4FAB-A59D-377F595AFC9C}"
 EndProject
 Global
-		GlobalSection(SolutionConfigurationPlatforms) = preSolution
-				Debug|Any CPU = Debug|Any CPU
-				Release|Any CPU = Release|Any CPU
-		EndGlobalSection
-		GlobalSection(ProjectConfigurationPlatforms) = postSolution
-				{0BFDA53E-C5EB-4668-97BE-F97873E5EB33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-				{0BFDA53E-C5EB-4668-97BE-F97873E5EB33}.Debug|Any CPU.Build.0 = Debug|Any CPU
-				{0BFDA53E-C5EB-4668-97BE-F97873E5EB33}.Release|Any CPU.ActiveCfg = Release|Any CPU
-				{0BFDA53E-C5EB-4668-97BE-F97873E5EB33}.Release|Any CPU.Build.0 = Release|Any CPU
-				{7947AC11-D1A1-4E7D-B451-3650D50C8AEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-				{7947AC11-D1A1-4E7D-B451-3650D50C8AEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-				{7947AC11-D1A1-4E7D-B451-3650D50C8AEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-				{7947AC11-D1A1-4E7D-B451-3650D50C8AEC}.Release|Any CPU.Build.0 = Release|Any CPU
-				{A2F010CB-089B-409C-BA37-17D5CEBEE658}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-				{A2F010CB-089B-409C-BA37-17D5CEBEE658}.Debug|Any CPU.Build.0 = Debug|Any CPU
-				{A2F010CB-089B-409C-BA37-17D5CEBEE658}.Release|Any CPU.ActiveCfg = Release|Any CPU
-				{A2F010CB-089B-409C-BA37-17D5CEBEE658}.Release|Any CPU.Build.0 = Release|Any CPU
-		EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F34E6A5B-162C-48FC-ACF0-24B658A9A544}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F34E6A5B-162C-48FC-ACF0-24B658A9A544}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F34E6A5B-162C-48FC-ACF0-24B658A9A544}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F34E6A5B-162C-48FC-ACF0-24B658A9A544}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C565A310-59DA-4463-A680-DFBB46D29ADE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C565A310-59DA-4463-A680-DFBB46D29ADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C565A310-59DA-4463-A680-DFBB46D29ADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C565A310-59DA-4463-A680-DFBB46D29ADE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C580AED0-BACA-4FAB-A59D-377F595AFC9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C580AED0-BACA-4FAB-A59D-377F595AFC9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C580AED0-BACA-4FAB-A59D-377F595AFC9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C580AED0-BACA-4FAB-A59D-377F595AFC9C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 EndGlobal

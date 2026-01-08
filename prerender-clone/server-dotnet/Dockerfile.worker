@@ -1,0 +1,43 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+COPY Prerender.sln ./
+COPY src/ ./src/
+
+RUN dotnet restore Prerender.sln
+RUN dotnet publish src/Prerender.Worker/Prerender.Worker.csproj -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/runtime:9.0
+WORKDIR /app
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+    chromium \
+    libnss3 \
+    libxss1 \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libgtk-3-0 \
+    libdrm2 \
+    libgbm1 \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libatk1.0-0 \
+    libpangocairo-1.0-0 \
+    libpango-1.0-0 \
+    libxshmfence1 \
+    libxfixes3 \
+    libxext6 \
+    libxcb1 \
+    libxi6 \
+    libglib2.0-0 \
+    fonts-liberation \
+ && rm -rf /var/lib/apt/lists/*
+
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
+COPY --from=build /app/publish/ ./
+
+ENTRYPOINT ["dotnet", "Prerender.Worker.dll"]

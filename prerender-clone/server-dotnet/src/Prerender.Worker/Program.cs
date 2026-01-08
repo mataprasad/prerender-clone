@@ -4,6 +4,8 @@ using Microsoft.Extensions.Logging;
 using Prerender.Shared;
 using Prerender.Worker;
 
+dotenv.net.DotEnv.Load();
+
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Logging.ClearProviders();
