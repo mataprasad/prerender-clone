@@ -35,7 +35,7 @@ services:
       RESPONSE_QUEUE_PREFIX: prerender.responses.
       RESPONSE_TIMEOUT_MS: 60000
       WORKER_CONCURRENCY: 3
-      PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium
+      PUPPETEER_CACHE_DIR: /app/cache/puppeteer
     volumes:
       - /var/prerender-cache:/app/cache
     depends_on:
