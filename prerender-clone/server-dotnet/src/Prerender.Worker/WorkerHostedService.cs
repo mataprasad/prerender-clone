@@ -38,10 +38,18 @@ public sealed class WorkerHostedService(
         }
         else
         {
-            await new BrowserFetcher(new BrowserFetcherOptions
+            var cacheDir = Environment.GetEnvironmentVariable("PUPPETEER_CACHE_DIR");
+            if (string.IsNullOrWhiteSpace(cacheDir))
             {
-                Path = "/app/cache/chrome"
-            }).DownloadAsync();
+                cacheDir = Path.Combine(AppContext.BaseDirectory, ".cache", "puppeteer");
+            }
+
+            var browserFetcher = new BrowserFetcher(new BrowserFetcherOptions
+            {
+                Path = cacheDir,
+            });
+            var revisionInfo = await browserFetcher.DownloadAsync();
+            options.ExecutablePath = revisionInfo.GetExecutablePath();
         }
 
         _browser = await Puppeteer.LaunchAsync(options);
