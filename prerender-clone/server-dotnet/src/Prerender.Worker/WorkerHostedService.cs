@@ -102,11 +102,10 @@ public sealed class WorkerHostedService(
         await using var page = await _browser.NewPageAsync();
         try
         {
-            await page.GoToAsync(url, new NavigationOptions
+            await page.GoToAsync(url);
+            await page.WaitForNetworkIdleAsync(new WaitForNetworkIdleOptions
             {
-                WaitUntil = new[] { WaitUntilNavigation.Networkidle0 },
                 Timeout = 60_000,
-                ReferrerPolicy = "no-referrer",
             });
             return await page.GetContentAsync();
         }
